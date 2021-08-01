@@ -1,3 +1,9 @@
+<p align="center">
+<a href="http://duckdev.com" target="_blank">
+    <img width="200px" src="https://duckdev.com/wp-content/uploads/2020/12/cropped-duckdev-logo-mid.png">
+</a>
+</p>
+
 # WP Queue Process
 
 WP Queue Process can be used to fire off non-blocking asynchronous requests or as a background processing tool, allowing you to queue tasks.
