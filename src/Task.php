@@ -115,7 +115,7 @@ abstract class Task extends Async {
 	 * @since  1.0.0
 	 * @access public
 	 *
-	 * @return Queue $this
+	 * @return Task $this
 	 */
 	public function push_to_queue( $data ) {
 		$this->data[] = $data;
@@ -129,7 +129,7 @@ abstract class Task extends Async {
 	 * @since  1.0.0
 	 * @access public
 	 *
-	 * @return Queue $this
+	 * @return Task $this
 	 */
 	public function save() {
 		// Generate key.
@@ -154,7 +154,7 @@ abstract class Task extends Async {
 	 * @since  1.0.0
 	 * @access public
 	 *
-	 * @return Queue $this
+	 * @return Task $this
 	 */
 	public function update( $key, $data ) {
 		if ( ! empty( $data ) ) {
@@ -171,7 +171,7 @@ abstract class Task extends Async {
 	 *
 	 * @since 1.0.0
 	 *
-	 * @return Queue $this
+	 * @return Task $this
 	 */
 	public function delete( $key ) {
 		delete_site_option( $key );
@@ -328,7 +328,7 @@ abstract class Task extends Async {
 	 * @since  1.0.0
 	 * @access protected
 	 *
-	 * @return Queue $this
+	 * @return Task $this
 	 */
 	protected function unlock_process() {
 		// Delete lock transient.
