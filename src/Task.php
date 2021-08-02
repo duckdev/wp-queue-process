@@ -124,6 +124,26 @@ abstract class Task extends Async {
 	}
 
 	/**
+	 * Set the data for queue.
+	 *
+	 * Use this only if you have the data in correct format.
+	 * CAUTION: You should call Task::save() right after this
+	 * because this will replace the data in current queue.
+	 *
+	 * @param mixed $data Data to process.
+	 *
+	 * @since  1.0.2
+	 * @access public
+	 *
+	 * @return Task $this
+	 */
+	public function set_queue( $data ) {
+		$this->data = $data;
+
+		return $this;
+	}
+
+	/**
 	 * Save the process queue.
 	 *
 	 * @param string $group Group name.
