@@ -154,7 +154,13 @@ foreach ( $items as $item ) {
 }
 ```
 
-Save and dispatch the queue:
+Or directly set the queue items:
+
+```php
+$this->example_process->set_queue( $items );
+```
+
+And then save and dispatch the queue:
 
 `$this->example_process->save( 'my-task' ')->dispatch();`
 
