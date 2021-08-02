@@ -126,18 +126,24 @@ abstract class Task extends Async {
 	/**
 	 * Save the process queue.
 	 *
+	 * @param string $group Group name.
+	 *
 	 * @since  1.0.0
+	 * @since  1.0.1 Added group option.
 	 * @access public
 	 *
 	 * @return Task $this
 	 */
-	public function save() {
+	public function save( $group = 'default' ) {
 		// Generate key.
 		$key = $this->generate_key();
 
 		// Save the data to database.
 		if ( ! empty( $this->data ) ) {
+			// Save data.
 			update_site_option( $key, $this->data );
+			// Save group name too.
+			update_site_option( $key . '_group', $group );
 		}
 
 		return $this;
@@ -175,6 +181,7 @@ abstract class Task extends Async {
 	 */
 	public function delete( $key ) {
 		delete_site_option( $key );
+		delete_site_option( $key . '_group' );
 
 		return $this;
 	}
@@ -375,9 +382,10 @@ abstract class Task extends Async {
 		);
 
 		// Create new object.
-		$batch       = new stdClass();
-		$batch->key  = $query->$column;
-		$batch->data = maybe_unserialize( $query->$value_column );
+		$batch        = new stdClass();
+		$batch->key   = $query->$column;
+		$batch->data  = maybe_unserialize( $query->$value_column );
+		$batch->group = get_site_option( $batch->key . '_group', 'default' );
 
 		return $batch;
 	}
@@ -406,7 +414,7 @@ abstract class Task extends Async {
 			// Process each item in batch.
 			foreach ( $batch->data as $key => $value ) {
 				// Run task.
-				$task = $this->task( $value );
+				$task = $this->task( $value, $batch->group );
 
 				// If task failed add to queue again.
 				if ( false !== $task ) {
@@ -699,12 +707,14 @@ abstract class Task extends Async {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param mixed $item Queue item to iterate over.
+	 * @param mixed  $item  Queue item to iterate over.
+	 * @param string $group Group name of the task (Useful when processing multiple tasks).
 	 *
 	 * @since  1.0.0
+	 * @since  1.0.1 Added group option.
 	 * @access protected
 	 *
 	 * @return mixed
 	 */
-	abstract protected function task( $item );
+	abstract protected function task( $item, $group );
 }

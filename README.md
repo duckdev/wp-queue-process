@@ -9,7 +9,7 @@
 WP Queue Process can be used to fire off non-blocking asynchronous requests or as a background processing tool, allowing you to queue tasks.
 
 * Inspired by [TechCrunch WP Asynchronous Tasks](https://github.com/techcrunch/wp-async-task).
-* Forked from [WP Background Processing](https://github.com/deliciousbrains/wp-background-processing).
+* Forked from [WP Background Processing](https://github.com/deliciousbrains/wp-background-processing) with few extra options.
 
 __Requires PHP 5.2+__
 
@@ -101,11 +101,12 @@ class WP_Example_Process extends \DuckDev\Queue\Task {
 	 * in the next pass through. Or, return false to remove the
 	 * item from the queue.
 	 *
-	 * @param mixed $item Queue item to iterate over
-	 *
+	 * @param mixed  $item  Queue item to iterate over
+	 * @param string $group Group name of the task (Useful when performing multiple tasks).
+	 *                    
 	 * @return mixed
 	 */
-	protected function task( $item ) {
+	protected function task( $item, $group ) {
 		// Actions to perform
 
 		return false;
@@ -155,7 +156,7 @@ foreach ( $items as $item ) {
 
 Save and dispatch the queue:
 
-`$this->example_process->save()->dispatch();`
+`$this->example_process->save( 'my-task' ')->dispatch();`
 
 ### BasicAuth
 
