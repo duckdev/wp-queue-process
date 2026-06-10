@@ -6,179 +6,221 @@
 
 # WP Queue Process
 
-WP Queue Process can be used to fire off non-blocking asynchronous requests or as a background processing tool, allowing you to queue tasks.
+WP Queue Process is a WordPress library for firing off non-blocking asynchronous requests and for running long jobs as a
+background queue. Items pushed onto the queue are worked through in batches that bail out before exhausting the server's
+time or memory budget, each finished batch chains the next instantly, and a self-healing cron restarts a stalled queue.
 
 * Inspired by [TechCrunch WP Asynchronous Tasks](https://github.com/techcrunch/wp-async-task).
-* Forked from [WP Background Processing](https://github.com/deliciousbrains/wp-background-processing) with few extra options.
+* Forked from [WP Background Processing](https://github.com/deliciousbrains/wp-background-processing), modernised with a
+  swappable storage driver, a server-load guard, and a full test suite.
 
-__Requires PHP 5.2+__
+## Requirements
 
-## Install
+* PHP 7.4 or higher
+* WordPress 6.0+
+* Composer
 
-The recommended way to install this library in your project is by loading it through Composer:
+## Installation
 
-```
+```console
 composer require duckdev/wp-queue-process
 ```
+
+The library autoloads under the `DuckDev\Queue\` namespace via PSR-4.
+
+## Architecture
+
+Consumers extend one of two abstract classes — `Async` for a one-off request, `Task` for a queue. Everything else is a
+collaborator that `Task` wires up for you and that you can swap or mock through the constructor. The folder layout
+mirrors the namespace:
+
+```
+src/
+├── Async.php                     # Abstract non-blocking request
+├── Task.php                      # Abstract background queue (extends Async)
+├── Contracts/
+│   └── StoreInterface.php        # Where batches are persisted
+├── Storage/
+│   └── OptionStore.php           # Default driver: (network) options table
+├── Support/
+│   ├── Batch.php                 # Value object: one stored batch
+│   ├── ServerLimits.php          # Time/memory budget guard
+│   └── ProcessLock.php           # Single-worker lock (site transient)
+└── Exceptions/
+    └── QueueException.php
+```
+
+`Task` delegates persistence to a `StoreInterface`, load-guarding to `ServerLimits`, and single-worker locking to
+`ProcessLock`. All three are injected through the constructor (with WordPress-backed defaults), so the batch loop can be
+unit-tested without a database.
 
 ## Usage
 
 ### Async Request
 
-Async requests are useful for pushing slow one-off tasks such as sending emails to a background process. Once the request has been dispatched it will process in the background instantly.
+Async requests are useful for pushing slow one-off tasks — sending an email, warming a cache — to a background process.
+Once dispatched, the request processes immediately and out of band.
 
-Extend the `\DuckDev\Queue\Async` class:
+Extend `\DuckDev\Queue\Async`:
 
 ```php
 class WP_Example_Request extends \DuckDev\Queue\Async {
 
 	/**
-	 * @var string
+	 * @var string Unique action name.
 	 */
 	protected $action = 'example_request';
 
 	/**
-	 * Handle
-	 *
-	 * Override this method to perform any actions required
-	 * during the async request.
+	 * Perform the work. The dispatched data is available in $_POST.
 	 */
 	protected function handle() {
-		// Actions to perform
+		// Actions to perform.
 	}
 }
 ```
 
-##### `protected $action`
+Dispatch it (chaining is supported):
 
-Should be set to a unique name.
-
-##### `protected function handle()`
-
-Should contain any logic to perform during the non-blocking request. The data passed to the request will be accessible via `$_POST`.
-
-##### Dispatching Requests
-
-Instantiate your request:
-
-`$this->example_request = new WP_Example_Request();`
-
-Add data to the request if required:
-
-`$this->example_request->data( array( 'value1' => $value1, 'value2' => $value2 ) );`
-
-Fire off the request:
-
-`$this->example_request->dispatch();`
-
-Chaining is also supported:
-
-`$this->example_request->data( array( 'data' => $data ) )->dispatch();`
+```php
+$this->example_request = new WP_Example_Request();
+$this->example_request->data( array( 'value1' => $value1, 'value2' => $value2 ) )->dispatch();
+```
 
 ### Background Process
 
-Background processes work in a similar fashion to async requests but they allow you to queue tasks. Items pushed onto the queue will be processed in the background once the queue has been dispatched. Queues will also scale based on available server resources, so higher end servers will process more items per batch. Once a batch has completed the next batch will start instantly.
+Background processes queue tasks and work through them in batches. Higher-end servers process more items per batch.
+A health check runs by default every 5 minutes to restart the queue if it ever fails; queues are processed
+first-in-first-out, so items can be pushed even while one is already running.
 
-Health checks run by default every 5 minutes to ensure the queue is running when queued items exist. If the queue has failed it will be restarted.
-
-Queues work on a first in first out basis, which allows additional items to be pushed to the queue even if it’s already processing.
-
-Extend the `\DuckDev\Queue\Task` class:
+Extend `\DuckDev\Queue\Task`:
 
 ```php
 class WP_Example_Process extends \DuckDev\Queue\Task {
 
 	/**
-	 * @var string
+	 * @var string Unique action name.
 	 */
 	protected $action = 'example_process';
 
 	/**
-	 * Task
+	 * Process a single queue item.
 	 *
-	 * Override this method to perform any actions required on each
-	 * queue item. Return the modified item for further processing
-	 * in the next pass through. Or, return false to remove the
-	 * item from the queue.
+	 * Return the (optionally modified) item to push it back for another
+	 * pass, or false to remove it from the queue.
 	 *
-	 * @param mixed  $item  Queue item to iterate over
-	 * @param string $group Group name of the task (Useful when performing multiple tasks).
-	 *                    
+	 * @param mixed  $item  Queue item to process.
+	 * @param string $group Group name the item was saved under.
+	 *
 	 * @return mixed
 	 */
 	protected function task( $item, $group ) {
-		// Actions to perform
+		// Actions to perform.
 
 		return false;
 	}
 
 	/**
-	 * Complete
-	 *
-	 * Override if applicable, but ensure that the below actions are
-	 * performed, or, call parent::complete().
+	 * Optional. Runs once the queue is fully drained.
 	 */
 	protected function complete() {
 		parent::complete();
 
-		// Show notice to user or perform some other arbitrary task...
+		// Show a notice, log, etc.
 	}
 }
 ```
 
-##### `protected $action`
-
-Should be set to a unique name.
-
-##### `protected function task( $item )`
-
-Should contain any logic to perform on the queued item. Return `false` to remove the item from the queue or return `$item` to push it back onto the queue for further processing. If the item has been modified and is pushed back onto the queue the current state will be saved before the batch is exited.
-
-##### `protected function complete()`
-
-Optionally contain any logic to perform once the queue has completed.
-
-##### Dispatching Processes
-
-Instantiate your process:
-
-`$this->example_process = new WP_Example_Process();`
-
-**Note:** You must instantiate your process unconditionally. All requests should do this, even if nothing is pushed to the queue.
-
-Push items to the queue:
+Instantiate the process **unconditionally** (every request, even when nothing is queued), push items, then save and
+dispatch:
 
 ```php
+$this->example_process = new WP_Example_Process();
+
 foreach ( $items as $item ) {
-    $this->example_process->push_to_queue( $item );
+	$this->example_process->push_to_queue( $item );
 }
+
+// Or set the whole queue at once when the data is already shaped correctly:
+// $this->example_process->set_queue( $items );
+
+$this->example_process->save( 'my-group' )->dispatch();
 ```
 
-Or directly set the queue items:
+#### Public methods
+
+| Method | Description |
+| --- | --- |
+| `push_to_queue( $item )` | Append a single item to the in-memory queue. |
+| `set_queue( array $items )` | Replace the in-memory queue wholesale. |
+| `save( string $group = 'default' )` | Persist the in-memory queue as a new batch. |
+| `dispatch()` | Schedule the health-check cron and start processing. |
+| `update( string $key, array $data )` | Replace the items of an existing batch. |
+| `delete( string $key )` | Delete a batch entirely. |
+| `cancel_process()` | Drop the current batch and clear the cron. |
+
+### Swapping the storage driver
+
+The default `OptionStore` keeps batches in the (network) options table. Pass your own `StoreInterface` — or a custom
+`ServerLimits` / `ProcessLock` — to the constructor to change where batches live or how aggressively a batch runs:
 
 ```php
-$this->example_process->set_queue( $items );
+$process = new WP_Example_Process( new MyCustomStore( 'my_plugin_example_process' ) );
 ```
 
-And then save and dispatch the queue:
+## Filters
 
-`$this->example_process->save( 'my-task' ')->dispatch();`
+Every filter is namespaced with the process identifier (`{prefix}_{action}`, e.g. `duckdev_example_process`):
+
+| Filter | Default | Purpose |
+| --- | --- | --- |
+| `{id}_query_args` | action + nonce | Query args added to the dispatch URL. |
+| `{id}_query_url` | `admin-ajax.php` | URL the request is dispatched to. |
+| `{id}_post_args` | non-blocking POST | Arguments passed to `wp_remote_post()`. |
+| `{id}_default_time_limit` | `20` | Per-batch time budget, in seconds. |
+| `{id}_time_exceeded` | computed | Override whether the time budget is spent. |
+| `{id}_memory_exceeded` | computed | Override whether the memory budget is spent. |
+| `{id}_queue_lock_time` | `60` | Process lock duration, in seconds. |
+| `{id}_cron_interval` | `5` | Health-check interval, in minutes. |
 
 ### BasicAuth
 
-If your site is behind BasicAuth, both async requests and background processes will fail to complete. This is because WP Background Processing relies on the [WordPress HTTP API](http://codex.wordpress.org/HTTP_API), which requires you to attach your BasicAuth credentials to requests. The easiest way to do this is using the following filter:
+If your site is behind BasicAuth, requests rely on the [WordPress HTTP API](https://developer.wordpress.org/plugins/http-api/)
+and need credentials attached:
 
 ```php
-function ddqueue_http_request_args( $r, $url ) {
+add_filter( 'http_request_args', function ( $r ) {
 	$r['headers']['Authorization'] = 'Basic ' . base64_encode( USERNAME . ':' . PASSWORD );
 
 	return $r;
-}
-add_filter( 'http_request_args', 'ddqueue_http_request_args', 10, 2);
+} );
+```
+
+## Upgrading from 1.x
+
+The 2.0 release is a structural rewrite. The classes you extend (`Async`, `Task`) and their public methods
+(`push_to_queue()`, `set_queue()`, `save()`, `dispatch()`, `update()`, `delete()`, `cancel_process()`) and every filter
+are unchanged, so most consumers only need to bump the requirement.
+
+What changed:
+
+* **PHP 7.4+** is now required (was 5.6); properties and signatures are typed.
+* Persistence, load-guarding, and locking moved into injectable collaborators (`StoreInterface`, `ServerLimits`,
+  `ProcessLock`). The internal protected helpers from 1.x (`is_queue_empty()`, `get_batch()`, `memory_exceeded()`, …)
+  were removed — override `task()` / `complete()` or inject a collaborator instead.
+* `set_queue()` and `save()` now type-hint their arguments.
+
+## Development
+
+```console
+composer install
+composer test     # PHPUnit (Brain\Monkey, no WordPress install needed)
+composer phpcs    # WordPress Coding Standards
+composer phpcbf   # Auto-fix coding standard violations
 ```
 
 ### Credits
-* This is a forked, improved library of [WP Background Processing](https://github.com/deliciousbrains/wp-background-processing).
+* A forked, modernised library of [WP Background Processing](https://github.com/deliciousbrains/wp-background-processing).
 * Maintained by [Joel James](https://github.com/joel-james/)
 
 ### License

@@ -1,18 +1,22 @@
 <?php
 /**
- * Asynchronous request class.
+ * Asynchronous request base class.
  *
- * This class helps to execute no blocking tasks with
- * WordPress. This is modified version from
- * https://github.com/deliciousbrains/wp-background-processing
+ * Fires a non-blocking request back to `admin-ajax.php` so a slow,
+ * one-off task (sending an email, warming a cache) runs out of band
+ * without holding up the response the visitor is waiting on. Consumers
+ * extend this class, set a unique {@see Async::$action}, and implement
+ * {@see Async::handle()}.
  *
- * @since      1.0.0
- * @author     Joel James <me@joelsays.com>
- * @license    http://www.gnu.org/licenses/old-licenses/gpl-2.0.html
- * @copyright  Copyright (c) 2021, Joel James
+ * Originally adapted from deliciousbrains/wp-background-processing;
+ * modernised for PSR-4, typed properties, and a swappable storage
+ * layer in 2.0.
+ *
  * @link       https://github.com/duckdev/wp-queue-process
+ * @license    http://www.gnu.org/licenses/ GNU General Public License
+ * @author     Joel James <me@joelsays.com>
+ * @since      1.0.0
  * @package    Queue
- * @subpackage Async
  */
 
 namespace DuckDev\Queue;
@@ -20,78 +24,80 @@ namespace DuckDev\Queue;
 // If this file is called directly, abort.
 defined( 'WPINC' ) || die;
 
+use DuckDev\Queue\Exceptions\QueueException;
+
 /**
  * Class Async.
  *
  * @since   1.0.0
- * @abstract
  * @package DuckDev\Queue
  */
 abstract class Async {
 
 	/**
-	 * Prefix for the actions.
+	 * Prefix shared by every action and option this process registers.
 	 *
-	 * @var string $prefix
+	 * @since 1.0.0
 	 *
-	 * @access protected
-	 * @since  1.0.0
+	 * @var string
 	 */
-	protected $prefix = 'duckdev';
+	protected string $prefix = 'duckdev';
 
 	/**
-	 * Action name for the process.
+	 * Unique action name for this process.
 	 *
-	 * @var string $action
+	 * @since 1.0.0
 	 *
-	 * @access protected
-	 * @since  1.0.0
+	 * @var string
 	 */
-	protected $action = 'async_request';
+	protected string $action = 'async_request';
 
 	/**
-	 * Identifier for process.
+	 * Fully-qualified identifier ("{prefix}_{action}").
 	 *
-	 * @var mixed $identifier
+	 * @since 1.0.0
 	 *
-	 * @access protected
-	 * @since  1.0.0
+	 * @var string
 	 */
-	protected $identifier;
+	protected string $identifier = '';
 
 	/**
-	 * Data to process.
+	 * Data dispatched with the request.
 	 *
-	 * @var array $data
+	 * @since 1.0.0
 	 *
-	 * @access protected
-	 * @since  1.0.0
+	 * @var array
 	 */
-	protected $data = array();
+	protected array $data = array();
 
 	/**
-	 * Initiate a new async request.
+	 * Register the ajax listeners for this request.
 	 *
-	 * @since  1.0.0
-	 * @access public
+	 * @since 1.0.0
+	 *
+	 * @throws QueueException When the subclass leaves the prefix or action empty.
 	 */
 	public function __construct() {
-		// Set identifier.
+		if ( '' === trim( $this->prefix ) || '' === trim( $this->action ) ) {
+			throw new QueueException( 'A queue process needs a non-empty $prefix and $action.' );
+		}
+
 		$this->identifier = $this->prefix . '_' . $this->action;
 
-		// Register actions.
 		add_action( 'wp_ajax_' . $this->identifier, array( $this, 'maybe_handle' ) );
 		add_action( 'wp_ajax_nopriv_' . $this->identifier, array( $this, 'maybe_handle' ) );
 	}
 
 	/**
-	 * Set data used during the request
+	 * Set the data sent with the request.
 	 *
-	 * @param array $data Data.
+	 * @since 1.0.0
+	 *
+	 * @param array $data Data to send.
 	 *
 	 * @return $this
 	 */
-	public function data( $data ) {
+	public function data( array $data ) {
 		$this->data = $data;
 
 		return $this;
@@ -100,117 +106,102 @@ abstract class Async {
 	/**
 	 * Dispatch the async request.
 	 *
-	 * Send a post request to self admin-ajax.php to process
-	 * the request asynchronously.
+	 * Posts to `admin-ajax.php` with a short timeout and no blocking,
+	 * so the current request returns immediately.
 	 *
-	 * @since  1.0.0
-	 * @access public
+	 * @since 1.0.0
 	 *
-	 * @return array|WP_Error
+	 * @return array|\WP_Error
 	 */
 	public function dispatch() {
-		// Prepare URL.
 		$url = add_query_arg( $this->get_query_args(), $this->get_query_url() );
-		// Get request arguments.
-		$args = $this->get_post_args();
 
-		return wp_remote_post( esc_url_raw( $url ), $args );
+		return wp_remote_post( esc_url_raw( $url ), $this->get_post_args() );
 	}
 
 	/**
-	 * Get query args for request.
+	 * Query (`$_GET`) arguments for the request URL.
 	 *
-	 * These are the $_GET arguments for the request.
-	 *
-	 * @since  1.0.0
-	 * @access protected
+	 * @since 1.0.0
 	 *
 	 * @return array
 	 */
-	protected function get_query_args() {
-		// Optionally extending classes can have a query_args property.
+	protected function get_query_args(): array {
 		if ( property_exists( $this, 'query_args' ) ) {
 			return $this->query_args;
 		}
 
-		// Or set arguments.
 		$args = array(
 			'action' => $this->identifier,
 			'nonce'  => wp_create_nonce( $this->identifier ),
 		);
 
 		/**
-		 * Filters the post arguments used during an async request.
-		 *
-		 * @param array $args Arguments for request.
+		 * Filters the query arguments used during an async request.
 		 *
 		 * @since 1.0.0
+		 *
+		 * @param array $args Query arguments.
 		 */
 		return apply_filters( $this->identifier . '_query_args', $args );
 	}
 
 	/**
-	 * Get query URL for the request.
+	 * URL the request is dispatched to.
+	 *
+	 * @since 1.0.0
 	 *
 	 * @return string
 	 */
-	protected function get_query_url() {
-		// Optionally extending classes can have a query_url property.
+	protected function get_query_url(): string {
 		if ( property_exists( $this, 'query_url' ) ) {
 			return $this->query_url;
 		}
 
-		// Or set URL.
 		$url = admin_url( 'admin-ajax.php' );
 
 		/**
-		 * Filters the post arguments used during an async request.
-		 *
-		 * @param string $url URL for the request.
+		 * Filters the URL used during an async request.
 		 *
 		 * @since 1.0.0
+		 *
+		 * @param string $url Request URL.
 		 */
 		return apply_filters( $this->identifier . '_query_url', $url );
 	}
 
 	/**
-	 * Get post args for the request.
-	 *
-	 * These are the $_POST data available in request.
+	 * Post (`$_POST`) arguments for {@see wp_remote_post()}.
 	 *
 	 * @since 1.0.0
 	 *
 	 * @return array
 	 */
-	protected function get_post_args() {
-		// Optionally extending classes can have a post_args property.
+	protected function get_post_args(): array {
 		if ( property_exists( $this, 'post_args' ) ) {
 			return $this->post_args;
 		}
 
-		// Or set post data.
 		$args = array(
 			'timeout'   => 0.01,
 			'blocking'  => false,
 			'body'      => $this->data,
-			'cookies'   => $_COOKIE,
+			'cookies'   => $_COOKIE, // phpcs:ignore WordPress.Security.NonceVerification.Recommended -- forwarding the current session, not reading input.
 			'sslverify' => apply_filters( 'https_local_ssl_verify', false ),
 		);
 
 		/**
 		 * Filters the post arguments used during an async request.
 		 *
-		 * @param array $args Post arguments.
-		 *
 		 * @since 1.0.0
+		 *
+		 * @param array $args Post arguments.
 		 */
 		return apply_filters( $this->identifier . '_post_args', $args );
 	}
 
 	/**
-	 * Maybe handle the request.
-	 *
-	 * Check for correct nonce and pass to handler.
+	 * Verify the request and hand off to the handler.
 	 *
 	 * @since 1.0.0
 	 *
@@ -220,24 +211,22 @@ abstract class Async {
 		// Don't lock up other requests while processing.
 		session_write_close();
 
-		// Verify ajax referrer.
 		check_ajax_referer( $this->identifier, 'nonce' );
 
-		// Handle the process.
 		$this->handle();
 
-		// Die please.
 		wp_die();
 	}
 
 	/**
-	 * Handle the action.
+	 * Perform the work for this request.
 	 *
-	 * Override this method to perform any actions required
-	 * during the async request.
+	 * Override to do whatever the async request is for. The dispatched
+	 * data is available in `$_POST`.
 	 *
-	 * @since  1.0.0
-	 * @access protected
+	 * @since 1.0.0
+	 *
+	 * @return void
 	 */
 	abstract protected function handle();
 }

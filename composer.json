@@ -1,30 +1,62 @@
 {
   "name": "duckdev/wp-queue-process",
-  "description": "WordPress background queue processing library.",
-  "license": "GPL-2.0-or-later",
+  "version": "2.0.0",
   "type": "library",
+  "description": "WordPress non-blocking async requests and background queue processing with a swappable storage driver, server-load aware batching, and a self-healing cron.",
+  "keywords": [
+    "wordpress",
+    "background-processing",
+    "async",
+    "queue",
+    "cron"
+  ],
+  "homepage": "https://github.com/duckdev/wp-queue-process",
+  "license": "GPL-2.0-or-later",
   "authors": [
     {
       "name": "Joel James",
       "email": "me@joelsays.com",
-      "homepage": "https://duckdev.com"
+      "homepage": "https://duckdev.com",
+      "role": "Developer"
     }
-  ],
-  "keywords": [
-    "wordpress",
-    "reviews",
-    "notices"
   ],
   "support": {
     "issues": "https://github.com/duckdev/wp-queue-process/issues/"
   },
   "require": {
-    "php": ">=5.6"
+    "php": ">=7.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.6",
+    "brain/monkey": "^2.6",
+    "wp-coding-standards/wpcs": "^3.1",
+    "phpcompatibility/phpcompatibility-wp": "^2.1",
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0",
+    "squizlabs/php_codesniffer": "^3.10"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "platform": {
+      "php": "7.4"
+    },
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    }
   },
   "autoload": {
     "psr-4": {
-      "DuckDev\\Queue\\": "src"
+      "DuckDev\\Queue\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "DuckDev\\Queue\\Tests\\": "tests/"
+    }
+  },
+  "scripts": {
+    "test": "phpunit",
+    "phpcs": "phpcs",
+    "phpcbf": "phpcbf"
   },
   "minimum-stability": "dev"
 }
