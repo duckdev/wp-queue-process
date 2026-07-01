@@ -14,7 +14,7 @@ time or memory budget, each finished batch chains the next instantly, and a self
 * Forked from [WP Background Processing](https://github.com/deliciousbrains/wp-background-processing), modernised with a
   swappable storage driver, a server-load guard, and a full test suite.
 
-📖 **Full documentation:** [docs.duckdev.com/wp-libraries/wp-queue-process](https://docs.duckdev.com/wp-libraries/wp-queue-process)
+📖 **Full documentation:** [docs.duckdev.com/wp-libraries/wp-queue-process/overview](https://docs.duckdev.com/wp-libraries/wp-queue-process/overview)
 
 ## Requirements
 
