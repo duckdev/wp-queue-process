@@ -6,7 +6,7 @@
  * so the store's SQL-shaped lookups can be exercised without a
  * database.
  *
- * @package DuckDev\Queue\Tests
+ * @package FoxeLabs\Queue\Tests
  */
 
 declare( strict_types=1 );

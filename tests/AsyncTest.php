@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace DuckDev\Queue\Tests;
+namespace FoxeLabs\Queue\Tests;
 
 use Brain\Monkey\Functions;
-use DuckDev\Queue\Async;
-use DuckDev\Queue\Exceptions\QueueException;
+use FoxeLabs\Queue\Async;
+use FoxeLabs\Queue\Exceptions\QueueException;
 
 /**
  * Concrete async request used as a test double.

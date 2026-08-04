@@ -12,25 +12,25 @@
  * modernised for PSR-4, typed properties, and a swappable storage
  * layer in 2.0.
  *
- * @link       https://github.com/duckdev/wp-queue-process
+ * @link       https://github.com/foxelabs/wp-queue-process
  * @license    http://www.gnu.org/licenses/ GNU General Public License
  * @author     Joel James <me@joelsays.com>
  * @since      1.0.0
  * @package    Queue
  */
 
-namespace DuckDev\Queue;
+namespace FoxeLabs\Queue;
 
 // If this file is called directly, abort.
 defined( 'WPINC' ) || die;
 
-use DuckDev\Queue\Exceptions\QueueException;
+use FoxeLabs\Queue\Exceptions\QueueException;
 
 /**
  * Class Async.
  *
  * @since   1.0.0
- * @package DuckDev\Queue
+ * @package FoxeLabs\Queue
  */
 abstract class Async {
 
@@ -41,7 +41,7 @@ abstract class Async {
 	 *
 	 * @var string
 	 */
-	protected string $prefix = 'duckdev';
+	protected string $prefix = 'foxelabs';
 
 	/**
 	 * Unique action name for this process.

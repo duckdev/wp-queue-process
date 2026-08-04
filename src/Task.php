@@ -13,32 +13,32 @@
  * locking concerns are delegated to collaborators that can be injected
  * (and therefore mocked) via the constructor:
  *
- *   - {@see \DuckDev\Queue\Contracts\StoreInterface}  — where batches live.
- *   - {@see \DuckDev\Queue\Support\ServerLimits}      — when to stop a batch.
- *   - {@see \DuckDev\Queue\Support\ProcessLock}       — single-worker guard.
+ *   - {@see \FoxeLabs\Queue\Contracts\StoreInterface}  — where batches live.
+ *   - {@see \FoxeLabs\Queue\Support\ServerLimits}      — when to stop a batch.
+ *   - {@see \FoxeLabs\Queue\Support\ProcessLock}       — single-worker guard.
  *
- * @link       https://github.com/duckdev/wp-queue-process
+ * @link       https://github.com/foxelabs/wp-queue-process
  * @license    http://www.gnu.org/licenses/ GNU General Public License
  * @author     Joel James <me@joelsays.com>
  * @since      1.0.0
  * @package    Queue
  */
 
-namespace DuckDev\Queue;
+namespace FoxeLabs\Queue;
 
 // If this file is called directly, abort.
 defined( 'WPINC' ) || die;
 
-use DuckDev\Queue\Contracts\StoreInterface;
-use DuckDev\Queue\Storage\OptionStore;
-use DuckDev\Queue\Support\ProcessLock;
-use DuckDev\Queue\Support\ServerLimits;
+use FoxeLabs\Queue\Contracts\StoreInterface;
+use FoxeLabs\Queue\Storage\OptionStore;
+use FoxeLabs\Queue\Support\ProcessLock;
+use FoxeLabs\Queue\Support\ServerLimits;
 
 /**
  * Class Task.
  *
  * @since   1.0.0
- * @package DuckDev\Queue
+ * @package FoxeLabs\Queue
  */
 abstract class Task extends Async {
 

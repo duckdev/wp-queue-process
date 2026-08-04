@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace DuckDev\Queue\Tests\Support;
+namespace FoxeLabs\Queue\Tests\Support;
 
 use Brain\Monkey\Functions;
-use DuckDev\Queue\Support\ServerLimits;
-use DuckDev\Queue\Tests\TestCase;
+use FoxeLabs\Queue\Support\ServerLimits;
+use FoxeLabs\Queue\Tests\TestCase;
 
 final class ServerLimitsTest extends TestCase {
 

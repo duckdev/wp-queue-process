@@ -2,14 +2,14 @@
 
 declare( strict_types=1 );
 
-namespace DuckDev\Queue\Tests;
+namespace FoxeLabs\Queue\Tests;
 
 use Brain\Monkey\Functions;
-use DuckDev\Queue\Contracts\StoreInterface;
-use DuckDev\Queue\Support\Batch;
-use DuckDev\Queue\Support\ProcessLock;
-use DuckDev\Queue\Support\ServerLimits;
-use DuckDev\Queue\Task;
+use FoxeLabs\Queue\Contracts\StoreInterface;
+use FoxeLabs\Queue\Support\Batch;
+use FoxeLabs\Queue\Support\ProcessLock;
+use FoxeLabs\Queue\Support\ServerLimits;
+use FoxeLabs\Queue\Task;
 use Mockery;
 
 /**

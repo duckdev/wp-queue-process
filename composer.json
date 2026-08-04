@@ -1,6 +1,6 @@
 {
-  "name": "duckdev/wp-queue-process",
-  "version": "2.0.0",
+  "name": "foxelabs/wp-queue-process",
+  "version": "3.0.0",
   "type": "library",
   "description": "WordPress non-blocking async requests and background queue processing with a swappable storage driver, server-load aware batching, and a self-healing cron.",
   "keywords": [
@@ -10,18 +10,18 @@
     "queue",
     "cron"
   ],
-  "homepage": "https://github.com/duckdev/wp-queue-process",
+  "homepage": "https://github.com/foxelabs/wp-queue-process",
   "license": "GPL-2.0-or-later",
   "authors": [
     {
       "name": "Joel James",
       "email": "me@joelsays.com",
-      "homepage": "https://duckdev.com",
+      "homepage": "https://foxelabs.com",
       "role": "Developer"
     }
   ],
   "support": {
-    "issues": "https://github.com/duckdev/wp-queue-process/issues/"
+    "issues": "https://github.com/foxelabs/wp-queue-process/issues/"
   },
   "require": {
     "php": ">=7.4"
@@ -45,12 +45,12 @@
   },
   "autoload": {
     "psr-4": {
-      "DuckDev\\Queue\\": "src/"
+      "FoxeLabs\\Queue\\": "src/"
     }
   },
   "autoload-dev": {
     "psr-4": {
-      "DuckDev\\Queue\\Tests\\": "tests/"
+      "FoxeLabs\\Queue\\Tests\\": "tests/"
     }
   },
   "scripts": {

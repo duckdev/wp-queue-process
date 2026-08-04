@@ -3,13 +3,13 @@
  * Queue store contract.
  *
  * Abstraction over where queued batches are persisted. The default
- * implementation ({@see \DuckDev\Queue\Storage\OptionStore}) keeps
+ * implementation ({@see \FoxeLabs\Queue\Storage\OptionStore}) keeps
  * batches in the (network) options table — the historical behaviour
  * of this library — but consumers and tests can substitute an
  * in-memory or custom store because the process loop depends only on
  * this interface.
  *
- * @link       https://github.com/duckdev/wp-queue-process
+ * @link       https://github.com/foxelabs/wp-queue-process
  * @license    http://www.gnu.org/licenses/ GNU General Public License
  * @author     Joel James <me@joelsays.com>
  * @since      2.0.0
@@ -17,12 +17,12 @@
  * @subpackage Contracts
  */
 
-namespace DuckDev\Queue\Contracts;
+namespace FoxeLabs\Queue\Contracts;
 
 // If this file is called directly, abort.
 defined( 'WPINC' ) || die;
 
-use DuckDev\Queue\Support\Batch;
+use FoxeLabs\Queue\Support\Batch;
 
 /**
  * Interface StoreInterface.

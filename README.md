@@ -1,9 +1,3 @@
-<p align="center">
-<a href="http://duckdev.com" target="_blank">
-    <img width="200px" src="https://duckdev.com/wp-content/uploads/2020/12/cropped-duckdev-logo-mid.png">
-</a>
-</p>
-
 # WP Queue Process
 
 WP Queue Process is a WordPress library for firing off non-blocking asynchronous requests and for running long jobs as a
@@ -14,7 +8,7 @@ time or memory budget, each finished batch chains the next instantly, and a self
 * Forked from [WP Background Processing](https://github.com/deliciousbrains/wp-background-processing), modernised with a
   swappable storage driver, a server-load guard, and a full test suite.
 
-📖 **Full documentation:** [docs.duckdev.com/wp-libraries/wp-queue-process/overview](https://docs.duckdev.com/wp-libraries/wp-queue-process/overview)
+📖 **Full documentation:** [docs.foxelabs.com](https://docs.foxelabs.com/software/wp-libraries/wp-queue-process/overview)
 
 ## Requirements
 
@@ -25,10 +19,10 @@ time or memory budget, each finished batch chains the next instantly, and a self
 ## Installation
 
 ```console
-composer require duckdev/wp-queue-process
+composer require foxelabs/wp-queue-process
 ```
 
-The library autoloads under the `DuckDev\Queue\` namespace via PSR-4.
+The library autoloads under the `FoxeLabs\Queue\` namespace via PSR-4.
 
 ## Architecture
 
@@ -63,10 +57,10 @@ unit-tested without a database.
 Async requests are useful for pushing slow one-off tasks — sending an email, warming a cache — to a background process.
 Once dispatched, the request processes immediately and out of band.
 
-Extend `\DuckDev\Queue\Async`:
+Extend `\FoxeLabs\Queue\Async`:
 
 ```php
-class WP_Example_Request extends \DuckDev\Queue\Async {
+class WP_Example_Request extends \FoxeLabs\Queue\Async {
 
 	/**
 	 * @var string Unique action name.
@@ -95,10 +89,10 @@ Background processes queue tasks and work through them in batches. Higher-end se
 A health check runs by default every 5 minutes to restart the queue if it ever fails; queues are processed
 first-in-first-out, so items can be pushed even while one is already running.
 
-Extend `\DuckDev\Queue\Task`:
+Extend `\FoxeLabs\Queue\Task`:
 
 ```php
-class WP_Example_Process extends \DuckDev\Queue\Task {
+class WP_Example_Process extends \FoxeLabs\Queue\Task {
 
 	/**
 	 * @var string Unique action name.
@@ -172,7 +166,7 @@ $process = new WP_Example_Process( new MyCustomStore( 'my_plugin_example_process
 
 ## Filters
 
-Every filter is namespaced with the process identifier (`{prefix}_{action}`, e.g. `duckdev_example_process`):
+Every filter is namespaced with the process identifier (`{prefix}_{action}`, e.g. `foxelabs_example_process`):
 
 | Filter | Default | Purpose |
 | --- | --- | --- |

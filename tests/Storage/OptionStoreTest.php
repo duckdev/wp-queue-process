@@ -2,12 +2,12 @@
 
 declare( strict_types=1 );
 
-namespace DuckDev\Queue\Tests\Storage;
+namespace FoxeLabs\Queue\Tests\Storage;
 
 use Brain\Monkey\Functions;
-use DuckDev\Queue\Storage\OptionStore;
-use DuckDev\Queue\Support\Batch;
-use DuckDev\Queue\Tests\TestCase;
+use FoxeLabs\Queue\Storage\OptionStore;
+use FoxeLabs\Queue\Support\Batch;
+use FoxeLabs\Queue\Tests\TestCase;
 use FakeWpdb;
 
 final class OptionStoreTest extends TestCase {

@@ -4,9 +4,9 @@
  *
  * Defines the WordPress constants the library guards against and loads
  * the Composer autoloader. Brain\Monkey is initialised per test in
- * {@see \DuckDev\Queue\Tests\TestCase}.
+ * {@see \FoxeLabs\Queue\Tests\TestCase}.
  *
- * @package DuckDev\Queue\Tests
+ * @package FoxeLabs\Queue\Tests
  */
 
 declare( strict_types=1 );

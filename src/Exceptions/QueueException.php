@@ -6,7 +6,7 @@
  * process without an action name. Runtime conditions (an empty queue,
  * a locked process) are signalled with return values, not exceptions.
  *
- * @link       https://github.com/duckdev/wp-queue-process
+ * @link       https://github.com/foxelabs/wp-queue-process
  * @license    http://www.gnu.org/licenses/ GNU General Public License
  * @author     Joel James <me@joelsays.com>
  * @since      2.0.0
@@ -14,7 +14,7 @@
  * @subpackage Exceptions
  */
 
-namespace DuckDev\Queue\Exceptions;
+namespace FoxeLabs\Queue\Exceptions;
 
 // If this file is called directly, abort.
 defined( 'WPINC' ) || die;

@@ -8,11 +8,11 @@
  * option API can not express. Every key is namespaced with the
  * consumer's identifier so multiple processes never collide.
  *
- * This is the default driver behind {@see \DuckDev\Queue\Task}; swap
+ * This is the default driver behind {@see \FoxeLabs\Queue\Task}; swap
  * it out by passing a different {@see StoreInterface} to the process
  * constructor.
  *
- * @link       https://github.com/duckdev/wp-queue-process
+ * @link       https://github.com/foxelabs/wp-queue-process
  * @license    http://www.gnu.org/licenses/ GNU General Public License
  * @author     Joel James <me@joelsays.com>
  * @since      2.0.0
@@ -20,13 +20,13 @@
  * @subpackage Storage
  */
 
-namespace DuckDev\Queue\Storage;
+namespace FoxeLabs\Queue\Storage;
 
 // If this file is called directly, abort.
 defined( 'WPINC' ) || die;
 
-use DuckDev\Queue\Contracts\StoreInterface;
-use DuckDev\Queue\Support\Batch;
+use FoxeLabs\Queue\Contracts\StoreInterface;
+use FoxeLabs\Queue\Support\Batch;
 
 /**
  * Class OptionStore.

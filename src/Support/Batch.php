@@ -11,7 +11,7 @@
  *
  * Pure value object: no WordPress calls.
  *
- * @link       https://github.com/duckdev/wp-queue-process
+ * @link       https://github.com/foxelabs/wp-queue-process
  * @license    http://www.gnu.org/licenses/ GNU General Public License
  * @author     Joel James <me@joelsays.com>
  * @since      2.0.0
@@ -19,7 +19,7 @@
  * @subpackage Support
  */
 
-namespace DuckDev\Queue\Support;
+namespace FoxeLabs\Queue\Support;
 
 // If this file is called directly, abort.
 defined( 'WPINC' ) || die;

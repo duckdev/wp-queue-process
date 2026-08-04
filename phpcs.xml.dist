@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<ruleset name="DuckDev WP Queue Process">
+<ruleset name="FoxeLabs WP Queue Process">
 	<description>WordPress coding standards adapted for a PSR-4 library.</description>
 
 	<file>src</file>

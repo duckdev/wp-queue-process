@@ -2,11 +2,11 @@
 
 declare( strict_types=1 );
 
-namespace DuckDev\Queue\Tests\Support;
+namespace FoxeLabs\Queue\Tests\Support;
 
 use Brain\Monkey\Functions;
-use DuckDev\Queue\Support\ProcessLock;
-use DuckDev\Queue\Tests\TestCase;
+use FoxeLabs\Queue\Support\ProcessLock;
+use FoxeLabs\Queue\Tests\TestCase;
 
 final class ProcessLockTest extends TestCase {
 

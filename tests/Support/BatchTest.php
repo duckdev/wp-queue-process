@@ -2,17 +2,17 @@
 
 declare( strict_types=1 );
 
-namespace DuckDev\Queue\Tests\Support;
+namespace FoxeLabs\Queue\Tests\Support;
 
-use DuckDev\Queue\Support\Batch;
-use DuckDev\Queue\Tests\TestCase;
+use FoxeLabs\Queue\Support\Batch;
+use FoxeLabs\Queue\Tests\TestCase;
 
 final class BatchTest extends TestCase {
 
 	public function test_exposes_constructor_values(): void {
-		$batch = new Batch( 'duckdev_async_batch_abc', array( 'a', 'b' ), 'mails' );
+		$batch = new Batch( 'foxelabs_async_batch_abc', array( 'a', 'b' ), 'mails' );
 
-		$this->assertSame( 'duckdev_async_batch_abc', $batch->key );
+		$this->assertSame( 'foxelabs_async_batch_abc', $batch->key );
 		$this->assertSame( array( 'a', 'b' ), $batch->data );
 		$this->assertSame( 'mails', $batch->group );
 	}

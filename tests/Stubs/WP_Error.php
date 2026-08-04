@@ -2,7 +2,7 @@
 /**
  * Minimal WP_Error stub for the test suite.
  *
- * @package DuckDev\Queue\Tests
+ * @package FoxeLabs\Queue\Tests
  */
 
 declare( strict_types=1 );

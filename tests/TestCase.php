@@ -2,12 +2,12 @@
 /**
  * Base test case wiring Brain\Monkey.
  *
- * @package DuckDev\Queue\Tests
+ * @package FoxeLabs\Queue\Tests
  */
 
 declare( strict_types=1 );
 
-namespace DuckDev\Queue\Tests;
+namespace FoxeLabs\Queue\Tests;
 
 use Brain\Monkey;
 use Brain\Monkey\Functions;
